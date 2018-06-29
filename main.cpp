@@ -135,7 +135,7 @@ public:
 
     void setAt(int index, Node *node);
 
-    void removeAt(int indxe);
+    void removeAt(int index);
 };
 
 void CList::removeHead() {
@@ -229,7 +229,7 @@ void CList::showAll() {
 
 Node *CList::getAt(int index) {
     //下标范围检查
-    if(index < 1 || index > count){
+    if (index < 1 || index > count) {
         cout << "查询失败" << endl;
         return nullptr;
     }
@@ -246,13 +246,33 @@ Node *CList::getAt(int index) {
 }
 
 void CList::setAt(int index, Node *node) {
+    //获取对应节点
     Node *ptr = getAt(index);
+    if (ptr == nullptr) return;
+
     ptr->getPrev()->setNext(node);
     node->setPrev(ptr->getPrev());
     ptr->getNext()->setPrev(node);
     node->setNext(ptr->getNext());
     free(ptr);
     node->setIndex(index);
+}
+
+void CList::removeAt(int index) {
+    //获取对应节点
+    Node *ptr = getAt(index);
+    if (ptr == nullptr) return;
+
+    Node *tmp = ptr;
+    ptr->getPrev()->setNext(ptr->getNext());
+    ptr->getNext()->setPrev(ptr->getPrev());
+    //修正index
+    while (ptr->getNext() != nullptr) {
+        ptr = ptr->getNext();
+        ptr->setIndex(ptr->getIndex() - 1);
+    }
+    //释放节点
+    free(tmp);
 }
 
 class Stack : public CList {
@@ -281,7 +301,9 @@ int main() {
     list.showAll();
 
     list.setAt(2, n5);
+    list.showAll();
 
+    list.removeAt(2);
     list.showAll();
 
     cout << list.getAt(2)->getIndex() << list.getAt(2)->getData()->name << endl;
