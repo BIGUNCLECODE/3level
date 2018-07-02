@@ -54,7 +54,13 @@ public:
     string name;
 
     Person(int age, int gender, const string &name) : age(age), gender(gender), name(name) {}
+
+    bool operator==(const Person &person);
 };
+
+bool Person::operator==(const Person &person) {
+    return (age == person.age && gender == person.gender && name == person.name);
+}
 
 class Student : public Person {
 public:
@@ -113,7 +119,6 @@ public:
     void setNext(Node *next) {
         this->next = next;
     }
-
 
 };
 
@@ -216,15 +221,16 @@ void CList::removeTail() {
 }
 
 void CList::addHead(Node *node) {
+    Node *copy = new Node(*node);
     //连接
-    node->setPrev(head);
-    node->setNext(head->getNext());
-    head->getNext()->setPrev(node);
-    head->setNext(node);
+    copy->setPrev(head);
+    copy->setNext(head->getNext());
+    head->getNext()->setPrev(copy);
+    head->setNext(copy);
     //修改下标
-    node->setIndex(1);
+    copy->setIndex(1);
     count++;
-    Node *ptr = node;
+    Node *ptr = copy;
     while (ptr->getNext() != nullptr) {
         ptr = ptr->getNext();
         ptr->setIndex(ptr->getIndex() + 1);
@@ -232,13 +238,14 @@ void CList::addHead(Node *node) {
 }
 
 void CList::addTail(Node *node) {
+    Node *copy = new Node(*node);
     //连接
-    node->setNext(tail);
-    node->setPrev(tail->getPrev());
-    tail->getPrev()->setNext(node);
-    tail->setPrev(node);
+    copy->setNext(tail);
+    copy->setPrev(tail->getPrev());
+    tail->getPrev()->setNext(copy);
+    tail->setPrev(copy);
     //修改下标
-    node->setIndex(++count);
+    copy->setIndex(++count);
     tail->setIndex(count + 1);
 }
 
@@ -315,6 +322,7 @@ void CList::removeAt(int index) {
     }
     //释放节点
     free(tmp);
+    count--;
 }
 
 CList::~CList() {
@@ -392,12 +400,60 @@ Node *Queue::deQueue(Node *node) {
 }
 
 /*集合类*/
-class Set : public CList{
+class Set : public CList {
+public:
+    Set operator-(const Set &set);//差
 
+    Set &operator+(Set &set);//并
+
+    Set operator&&(const Set &set);//and
 };
 
+Set Set::operator-(const Set &set) {
+    return Set();
+}
+
+Set &Set::operator+(Set &set) {
+    Set *result = (new Set);
+    //添加当前对象所有节点
+    Node *ptr1 = getHead()->getNext();
+    while (ptr1->getNext() != nullptr) {
+        Node *tmp = new Node(*ptr1);
+        result->addTail(tmp);
+        ptr1 = ptr1->getNext();
+    }
+    //添加set对象所有节点
+    Node *ptr2 = set.getHead()->getNext();
+    while (ptr2->getNext() != nullptr) {
+        Node *tmp = new Node(*ptr2);
+        result->addTail(tmp);
+        ptr2 = ptr2->getNext();
+    }
+    //排重
+    Node *ptr = result->getHead()->getNext();
+    while (ptr->getNext() != nullptr) {
+        Node *tar = ptr->getNext();
+        while (tar->getNext() != nullptr) {
+            if (ptr->getData() == tar->getData()) {
+                int index = tar->getIndex();
+                result->removeAt(index);
+                tar = result->getAt(index);
+                if (tar == nullptr) break;
+                continue;
+            }
+            tar = tar->getNext();
+        }
+        ptr = ptr->getNext();
+    }
+    return *result;
+}
+
+Set Set::operator&&(const Set &set) {
+    return Set();
+}
+
 int main() {
-    CList list;
+    /*CList list;
     Node *n1 = new Node(new Person(10, MALE, "GddG"));
     Node *n2 = new Node(new Person(10, MALE, "GG"));
     Node *n3 = new Node(new Person(10, MALE, "ssGG"));
@@ -431,6 +487,25 @@ int main() {
     list.removeTail();
     list.showAll();
     list.removeTail();
-    list.showAll();
+    list.showAll();*/
+    Node *n1 = new Node(new Person(10, MALE, "GddG"));
+    Node *n2 = new Node(new Person(10, MALE, "GG"));
+    Node *n3 = new Node(new Person(10, MALE, "ssGG"));
+    Node *n4 = new Node(new Person(10, MALE, "24GG"));
+    Node *n5 = new Node(new Person(10, MALE, "554G"));
+
+    Set set1, set2, set3;
+    set1.addTail(n1);
+    set1.addTail(n2);
+    set1.showAll();
+    set2.addTail(n1);
+    set2.addTail(n3);
+    set2.showAll();
+    set3 = set1 + set2;
+    set3.showAll();
+//    cout << set1.getCount() << endl;
+//    set1.removeAt(1);
+//    set1.showAll();
+//    cout << set1.getCount() << endl;
     return 0;
 }
