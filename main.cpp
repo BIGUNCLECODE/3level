@@ -2,6 +2,46 @@
 #include <string>
 #include <iomanip>
 
+/*
+ *2、功能需求
+用双向链表实现，需要满足如下要求。
+1)	链表元素中要有指针指向动态分配的内存空间，练习析构函数的操作规则；
+2)	链表应该至少有两个类，Node类和List类， Node类的构造和析构函数负责结点本身的初始化和空间回收，List类负责整个链表的管理工作，其构造和析构函数负责整个链表的初始化和回收；
+3)	从List类派生出Stack和Queue，并使其具有自身的操作特性，练习派生类的概念；
+4)	从List类派生出Set类，负责集合操作的实现；
+5)	具有差“—”，并”+”union，交and三种操作，其中前两个是运算符的重载，第三个并非运算符的重载
+6)	理解并、交、差操作并不影响参与操作的集合，实现并交差操作
+ * 成员函数设计
+1)	构造函数：
+a)	CList：构建空链表 √
+2)	获得头/尾指针
+a)	GetHead：返回头元素指针 √
+b)	GetTail：返回尾元素指针 √
+3)	链表元素操作
+a)	RemoveHead ：移除第一个元素 √
+b)	RemoveTail ：移除最后一个元素 √
+c)	AddHead ：在表头添加元素或者链表.  函数重载 todo
+d)	AddTail ：在表尾添加元素或者链表.    函数重载 todo
+e)	RemoveAll ： 移除所有元素 √
+f)	Operator+（）	运算符重载函数 todo
+4)	遍历操作
+a)	GetNext 返回下一个元素的位置 √
+b)	GetPrev 返回前一个元素位置 √
+5)	检索/修改操作
+a)	GetAt 返回指定下标的元素 √
+b)	SetAt 设定指定下标值的元素值 √
+c)	RemoveAt 移除指定下标值的元素 √
+6)	插入操作
+a)	InsertBefore：在指定位置前插入元素 todo
+b)	InsertAfter：在指定位置后插入元素 todo
+7)	查询操作
+a)	Find：返回等于指定值的元素的位置 todo
+b)	FindIndex：返回等于指定下标的元素的位置 todo
+8)	状态测试
+a)	GetCount：返回链表长度 √
+b)	IsEmpty：判断链表是否为空 √
+*/
+
 using namespace std;
 
 const int FEMALE = 0;
@@ -90,6 +130,8 @@ public:
         head->setNext(tail);
         tail->setPrev(head);
     }
+
+    ~CList();
 
     bool isEmpty() {
         return count == 0;
@@ -275,11 +317,82 @@ void CList::removeAt(int index) {
     free(tmp);
 }
 
-class Stack : public CList {
+CList::~CList() {
+    removeAll();
+    free(head);
+    free(tail);
+}
 
+/*栈类*/
+class Stack : public CList {
+public:
+    void push(Node *node);
+
+    Node *pop();
+
+    Node *top();
 };
 
+void Stack::push(Node *node) {
+    addTail(node);
+}
+
+Node *Stack::pop() {
+    if (isEmpty()) {
+        return nullptr;
+    } else {
+        //连接
+        Node *tail = getTail();
+        Node *tmp = tail->getPrev();
+        tail->setPrev(tmp->getPrev());
+        tmp->getPrev()->setNext(tail);
+        //下标修正
+        tail->setIndex(getCount());
+        setCount(getCount() - 1);
+        return tmp;
+    }
+}
+
+Node *Stack::top() {
+    return getTail();
+}
+
+/*队列类*/
 class Queue : public CList {
+public:
+    void enQueue(Node *node);
+
+    Node *deQueue(Node *node);
+};
+
+void Queue::enQueue(Node *node) {
+    addTail(node);
+}
+
+Node *Queue::deQueue(Node *node) {
+    if (isEmpty()) {
+        return nullptr;
+    } else {
+        //连接
+        Node *head = getHead();
+        Node *tmp = head->getNext();
+        head->setNext(tmp->getNext());
+        tmp->getNext()->setPrev(head);
+        //下标修正
+//        count--;
+        setCount(getCount() - 1);
+        Node *ptr = tmp;
+        while (ptr->getNext() != nullptr) {
+            ptr = ptr->getNext();
+            ptr->setIndex(ptr->getIndex() - 1);
+        }
+
+        return tmp;
+    }
+}
+
+/*集合类*/
+class Set : public CList{
 
 };
 
