@@ -370,14 +370,14 @@ class Queue : public CList {
 public:
     void enQueue(Node *node);
 
-    Node *deQueue(Node *node);
+    Node *deQueue();
 };
 
 void Queue::enQueue(Node *node) {
     addTail(node);
 }
 
-Node *Queue::deQueue(Node *node) {
+Node *Queue::deQueue() {
     if (isEmpty()) {
         return nullptr;
     } else {
@@ -402,15 +402,17 @@ Node *Queue::deQueue(Node *node) {
 /*集合类*/
 class Set : public CList {
 public:
-    Set operator-(const Set &set);//差
+    Set &operator-(Set &set);//差
 
     Set &operator+(Set &set);//并
 
-    Set operator&&(const Set &set);//and
+    Set &operator&&(Set &set);//and
 };
 
-Set Set::operator-(const Set &set) {
-    return Set();
+Set &Set::operator-(Set &set) {
+    Set *result = (new Set);
+
+    return *result;
 }
 
 Set &Set::operator+(Set &set) {
@@ -448,8 +450,23 @@ Set &Set::operator+(Set &set) {
     return *result;
 }
 
-Set Set::operator&&(const Set &set) {
-    return Set();
+Set &Set::operator&&(Set &set) {
+    Set *result = (new Set);
+    //添加当前对象所有节点
+    Node *ptr1 = getHead()->getNext();
+    while (ptr1->getNext() != nullptr) {
+        Node *ptr2 = set.getHead()->getNext();
+        while (ptr2->getNext() != nullptr) {
+            Node *tmp = new Node(*ptr2);
+            if (ptr1->getData() == ptr2->getData()) {
+                Node *tmp = new Node(*ptr1);
+                result->addTail(tmp);
+            }
+            ptr2 = ptr2->getNext();
+        }
+        ptr1 = ptr1->getNext();
+    }
+    return *result;
 }
 
 int main() {
@@ -503,6 +520,11 @@ int main() {
     set2.showAll();
     set3 = set1 + set2;
     set3.showAll();
+    set3 = set1 and set2;
+    set3.showAll();
+    set1.showAll();
+    set2.showAll();
+
 //    cout << set1.getCount() << endl;
 //    set1.removeAt(1);
 //    set1.showAll();
