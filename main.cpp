@@ -411,7 +411,23 @@ public:
 
 Set &Set::operator-(Set &set) {
     Set *result = (new Set);
-
+    Node *ptr1 = getHead()->getNext(), *ptr2;
+    while (ptr1->getNext() != nullptr) {
+        bool flag = true;
+        ptr2 = set.getHead()->getNext();
+        while (ptr2->getNext() != nullptr) {
+            Node *tmp = new Node(*ptr2);
+            if (ptr1->getData() == ptr2->getData()) {
+                flag = false;
+            }
+            ptr2 = ptr2->getNext();
+        }
+        if (flag) {
+            Node *tmp = new Node(*ptr1);
+            result->addTail(tmp);
+        }
+        ptr1 = ptr1->getNext();
+    }
     return *result;
 }
 
@@ -452,7 +468,7 @@ Set &Set::operator+(Set &set) {
 
 Set &Set::operator&&(Set &set) {
     Set *result = (new Set);
-    //添加当前对象所有节点
+    //添加相同内容的节点
     Node *ptr1 = getHead()->getNext();
     while (ptr1->getNext() != nullptr) {
         Node *ptr2 = set.getHead()->getNext();
@@ -514,6 +530,7 @@ int main() {
     Set set1, set2, set3;
     set1.addTail(n1);
     set1.addTail(n2);
+    set1.addTail(n4);
     set1.showAll();
     set2.addTail(n1);
     set2.addTail(n3);
@@ -522,8 +539,8 @@ int main() {
     set3.showAll();
     set3 = set1 and set2;
     set3.showAll();
-    set1.showAll();
-    set2.showAll();
+    set3 = set1 - set2;
+    set3.showAll();
 
 //    cout << set1.getCount() << endl;
 //    set1.removeAt(1);
