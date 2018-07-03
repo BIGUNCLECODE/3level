@@ -32,11 +32,11 @@ a)	GetAt 返回指定下标的元素 √
 b)	SetAt 设定指定下标值的元素值 √
 c)	RemoveAt 移除指定下标值的元素 √
 6)	插入操作
-a)	InsertBefore：在指定位置前插入元素 todo
-b)	InsertAfter：在指定位置后插入元素 todo
+a)	InsertBefore：在指定位置前插入元素 √
+b)	InsertAfter：在指定位置后插入元素 √
 7)	查询操作
-a)	Find：返回等于指定值的元素的位置 todo
-b)	FindIndex：返回等于指定下标的元素的位置 todo
+a)	Find：返回等于指定值的元素的位置 √
+b)	FindIndex：返回等于指定下标的元素的位置 √
 8)	状态测试
 a)	GetCount：返回链表长度 √
 b)	IsEmpty：判断链表是否为空 √
@@ -204,18 +204,42 @@ public:
     void removeAt(int index);
 
     void addData();
+
+    void insertBefore(Node *node, int index);
+
+    void insertAfter(Node *node, int index);
+
+    Node *find(string name);
+
+    Node *findIndex(int index);
 };
+
+Node *CList::find(string name) {
+    Node *ptr = head->getNext();
+    while (ptr->getNext() != nullptr) {
+        if (ptr->getData()->name == name) {
+            return ptr;
+        }
+        ptr = ptr->getNext();
+    }
+    return nullptr;
+}
+
+Node *CList::findIndex(int index) {
+    return getAt(index);
+}
+
 
 void CList::addData() {
     int sel, age, gender;
     string name;
-    cout << "输入数字选择添加 [教师0/学生1] 数据:" << endl;
+    cout << "输入数字选择添加 [教师0/学生1] 数据:";
     cin >> sel;
-    cout << "请输入姓名:" << endl;
+    cout << "请输入姓名:";
     cin >> name;
-    cout << "请输入性别 [女0/男1]:" << endl;
+    cout << "请输入性别 [女0/男1]:";
     cin >> gender;
-    cout << "请输入年龄:" << endl;
+    cout << "请输入年龄:";
     cin >> age;
     if (sel == TEACHER) {
         addTail(new Teacher(age, gender, name));
@@ -296,6 +320,42 @@ void CList::addTail(Person *person) {
     addTail(new Node(person));
 }
 
+void CList::insertBefore(Node *node, int index) {
+    Node *copy = new Node(*node);
+    Node *tar = getAt(index);
+    //连接
+    copy->setPrev(tar->getPrev());
+    copy->setNext(tar);
+    tar->getPrev()->setNext(copy);
+    tar->setPrev(copy);
+    //修改下标
+    copy->setIndex(index);
+    count++;
+    Node *ptr = copy;
+    while (ptr->getNext() != nullptr) {
+        ptr = ptr->getNext();
+        ptr->setIndex(ptr->getIndex() + 1);
+    }
+}
+
+void CList::insertAfter(Node *node, int index) {
+    Node *copy = new Node(*node);
+    Node *tar = getAt(index);
+    //连接
+    copy->setPrev(tar);
+    copy->setNext(tar->getNext());
+    tar->getNext()->setPrev(copy);
+    tar->setNext(copy);
+    //修改下标
+    copy->setIndex(index + 1);
+    count++;
+    Node *ptr = copy;
+    while (ptr->getNext() != nullptr) {
+        ptr = ptr->getNext();
+        ptr->setIndex(ptr->getIndex() + 1);
+    }
+}
+
 void CList::removeAll() {
     Node *ptr = head->getNext(), *tmp;
     while (ptr->getNext() != nullptr) {
@@ -314,11 +374,13 @@ void CList::showAll() {
     if (isEmpty()) {
         cout << "没有数据" << endl;
     } else {
-        cout << right << setw(10) << "序号" << setw(10) << "属性" << setw(10) << "姓名" << setw(10) << "年龄" << setw(10) << "性别" << endl;
+        cout << right << setw(10) << "序号" << setw(10) << "属性" << setw(10) << "姓名" << setw(10) << "年龄" << setw(10)
+             << "性别" << endl;
         Node *ptr = head->getNext();
         while (ptr->getNext() != nullptr) {
             Person *data = ptr->getData();
-            cout << right << setw(10) << ptr->getIndex() << setw(10) <<  (data->whoIAm() ? "学生" : "教师") << setw(10) << data->name << setw(10) << data->age << setw(10) << (data->gender ? "男" : "女") << endl;
+            cout << right << setw(10) << ptr->getIndex() << setw(10) << (data->whoIAm() ? "学生" : "教师") << setw(10)
+                 << data->name << setw(10) << data->age << setw(10) << (data->gender ? "男" : "女") << endl;
             ptr = ptr->getNext();
         }
     }
@@ -541,6 +603,7 @@ int show_function() {
     cout << "1.增加信息记录" << endl;
     cout << "2.显示所有信息" << endl;
     cout << "3.删除一条记录" << endl;
+    cout << "3.按姓名检索记录" << endl;
     cout << "0.结束程序运行" << endl;
 
     cin >> selection;
@@ -554,7 +617,16 @@ int main() {
     Node *n4 = new Node(new Person(10, MALE, "24GG"));
     Node *n5 = new Node(new Person(10, MALE, "554G"));
 
-    Set set1, set2, set3;
+    CList *list = new CList;
+    list->addTail(n1);
+    list->addTail(n2);
+    list->addTail(n3);
+    list->showAll();
+    list->insertAfter(n4, 2);
+    list->showAll();
+    list->insertBefore(n5, 2);
+    list->showAll();*/
+/*    Set set1, set2, set3;
     set1.addTail(n1);
     set1.addTail(n2);
     set1.addTail(n4);
@@ -574,6 +646,9 @@ int main() {
     set3.showAll();*/
     CList *list = new CList;
     int selection = show_function();
+    string name;
+    Node *tmp;
+    Person *data;
     while (selection != 0) {
         switch (selection) {
             case 1:
@@ -583,6 +658,15 @@ int main() {
                 list->showAll();
                 break;
             case 3:
+                cout << "请输入姓名:";
+                cin >> name;
+                tmp = list->find(name);
+                if (tmp == nullptr) { break; }
+                data = tmp->getData();
+                cout << right << setw(10) << tmp->getIndex() << setw(10) << (data->whoIAm() ? "学生" : "教师") << setw(10)
+                     << data->name << setw(10) << data->age << setw(10) << (data->gender ? "男" : "女") << endl;
+                break;
+            case 4:
 
                 break;
             default:
